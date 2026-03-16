@@ -1,0 +1,105 @@
+{
+  "name": "code-review-team",
+  "version": "1.0.0",
+  "description": "Multi-agent code review system with 5 developers, 1 security expert, and 1 intern/test engineer collaborating to find problems and reach consensus on solutions.",
+  "team_composition": {
+    "total_agents": 7,
+    "developer_agents": 5,
+    "specialist_agents": 2,
+    "roles": [
+      {
+        "id": "architect",
+        "name": "Architect Agent", 
+        "focus": "system design patterns and complexity reduction",
+        "expertise": ["design principles", "refactoring strategy", "DRY/KISS/YAGNI"]
+      },
+      {
+        "id": "performance", 
+        "name": "Performance Agent",
+        "focus": "efficiency, memory usage, optimization",
+        "expertise": ["memory profiling", "CPU hotspots", "resource contention"]
+      },
+      {
+        "id": "api_dev",
+        "name": "API Development Agent", 
+        "focus": "API design, data models, validation",
+        "expertise": ["REST best practices", "input validation", "error handling patterns"]
+      },
+      {
+        "id": "ux_dev",
+        "name": "UX Development Agent", 
+        "focus": "documentation clarity, user experience",
+        "expertise": ["error messages", "setup guides", "developer ergonomics"]
+      },
+      {
+        "id": "devops",
+        "name": "DevOps/SRE Agent", 
+        "focus": "deployment configs, monitoring, scalability",
+        "expertise": ["health checks", "scaling strategies", "configuration management"]
+      },
+      {
+        "id": "security_expert",
+        "name": "Security Expert Agent",
+        "focus": "vulnerabilities, authentication flaws, compliance", 
+        "status": "senior",  // Never junior - critical security role
+        "expertise": ["threat modeling", "secure coding patterns", "authentication best practices"]
+      },
+      {
+        "id": "intern_test_engineer",
+        "name": "Intern/Test Engineer Agent",
+        "focus": "edge cases, test coverage, documentation gaps", 
+        "status": "junior",  // Intentionally junior - brings fresh questions
+        "expertise": ["boundary testing", "error scenarios", "documentation completeness"]
+      }
+    ]
+  },
+  "workflow": {
+    "execution_mode": "parallel_first", 
+    "phases": [
+      {
+        "name": "independent_discovery", 
+        "duration_minutes": 30,
+        "description": "All agents scan codebase independently"
+      },
+      {
+        "name": "lead_architect_synthesis", 
+        "duration_minutes": 20,
+        "description": "Lead architect aggregates and prioritizes findings"
+      },
+      {
+        "name": "consensus_meetings",
+        "trigger": "critical_issues",
+        "description": "Team meetings for issues requiring discussion"
+      },
+      {
+        "name": "final_report_generation",
+        "duration_minutes": 15, 
+        "description": "Compile all artifacts into comprehensive report"
+      }
+    ]
+  },
+  "priority_weights": {
+    "security_critical": 4,
+    "critical_bug": 3,  
+    "high_complexity": 2,
+    "nice_to_have": 1
+  },
+  "consensus_rules": {
+    "threshold": 2,
+    "voting_enabled": true,
+    "emoji_votes": ["✅", "🤔", "❌"],
+    "security_requires_unanimous": true,
+    "major_refactoring_votes_needed": 4
+  },
+  "output_files": [
+    "team-review-report.md",
+    "findings.json", 
+    "consensus-decisions.md"
+  ],
+  "integration_points": [
+    "phase-planning-phase",
+    "wave-completion-check", 
+    "pre-commit-validation",
+    "end-of-sprint-retrospective"
+  ]
+}

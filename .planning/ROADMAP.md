@@ -49,6 +49,30 @@ Production-ready LLM proxy with comprehensive testing (~75%+ coverage), rate lim
 - .opencode/models.yaml schema for local agent configuration
 - Model metadata export functionality
 
+### New Capability: Multi-Agent Code Review Team 🤝
+**Created in Phase 10 simplification work.**
+
+A reusable skill enabling collaborative code review by a team of AI agents:
+- **5 Developers:** Each specialized (Architect, Performance, API/Backend, UX/Docs, DevOps/SRE)
+- **1 Security Expert:** Senior-level vulnerability and best practice reviews  
+- **1 Intern/Test Engineer:** Junior agent catching edge cases and documentation gaps
+
+**Features:**
+- Parallel independent discovery by all agents
+- Lead architect synthesizes findings and prioritizes
+- Consensus voting system for team decisions
+- Generates comprehensive reports with implementation plans
+- Integrates at multiple workflow points (phase planning, wave completion, pre-commit)
+
+**Usage:**
+```bash
+/gsd-skills activate code-review-team
+node ~/.config/opencode/get-shit-done/bin/gsd-tools.cjs code-review \
+  --project . --output team-review-report.md
+```
+
+**Documentation:** `.claude/skills/code-review-team/README.md` with full workflow, templates, and examples.
+
 ## Current Phase: Simplification & Enhancement 🚧
 
 ### Goal

@@ -1,0 +1,18 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: ""
+      tlsDisable: false
+      tlsSkipVerify: false
+      httpHeaderName1: X-Scope-OrgID
+      httpHeaderValue1: ${GRAFANA_DATASOURCE_AUTH_HEADER}
+      maxSamples: 10000
+    secureJsonData:
+      basicAuthPassword: ${PROMETHEUS_METRICS_PASSWORD:-prometheus}

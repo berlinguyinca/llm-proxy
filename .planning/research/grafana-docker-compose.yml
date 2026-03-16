@@ -1,0 +1,58 @@
+# grafana-docker-compose.yml - Monitoring stack for LLM Proxy
+# Extend existing docker-compose.yml or use standalone
+
+version: '3.8'
+
+services:
+  # Existing LLM Proxy service (from parent compose)
+  proxy:
+    # ... existing configuration ...
+    
+  # Optional LM Studio (from parent compose)
+  lm-studio:
+    # ... existing configuration ...
+
+# Add monitoring stack below
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: llm-proxy-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"  # Prometheus UI
+    networks:
+      - llm-proxy-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: llm-proxy-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SERVER_ROOT_URL=http://llm-proxy-grafana:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"  # Grafana UI
+    depends_on:
+      - prometheus
+    networks:
+      - llm-proxy-network
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  llm-proxy-network:
+    external: true

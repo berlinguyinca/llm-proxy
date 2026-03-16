@@ -1,0 +1,66 @@
+version: '3.8'
+
+# LLM Proxy Monitoring Stack - Grafana + Prometheus
+# Use: docker-compose up -d to start monitoring stack
+# Prerequisites: Ensure proxy service is running on port 9999
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: llm-proxy-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules:/etc/prometheus/rules
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: llm-proxy-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_LOG_LEVEL=info
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # Note: The proxy service should already be running from your main docker-compose.yml
+  # If not, add it here with:
+  #   proxy:
+  #     build:
+  #       context: .
+  #       dockerfile: Dockerfile
+  #     image: llm-proxy:${PROXY_TAG:-latest}
+  #     ports:
+  #       - "9999:9999"
+  #     env_file:
+  #       - .env
+  #     volumes:
+  #       - ./config:/app/config:ro
+  #       - ./logs:/app/logs:rw
+  #     healthcheck:
+  #       test: ["CMD", "/app/proxy", "--health-check"]
+  #       interval: 30s
+  #       timeout: 10s
+  #       retries: 3
+  #     deploy:
+  #       resources:
+  #         limits:
+  #           memory: 2G
+
+volumes:
+  prometheus-data: {}
+  grafana-storage: {}

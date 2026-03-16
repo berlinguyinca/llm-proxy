@@ -1,0 +1,14 @@
+# Updates to Phase 6 description in ROADMAP.md:
+
+Replace lines 26-37 with:
+
+  - name: wave-6-cli-management
+    status: complete ✅
+    description: CLI management interface for operational control without service restarts. Created llm-proxy-manager with models (list/reload/unload), routing inspection, and backend management commands. Supports table/JSON output formats. Full integration with existing proxy REST API endpoints. All CLI commands tested and verified working.
+
+    **Enhancements Completed:**
+    - Unit test suite: ~230 lines testing all CLI commands (~8 test cases)
+    - Comprehensive operational guide: OPERATIONAL.md (290 lines) with procedures, examples, and quick reference
+    - Architecture documentation: ARCHITECTURE.md documenting implementation patterns
+
+The CLI management interface is now complete and ready for production use.

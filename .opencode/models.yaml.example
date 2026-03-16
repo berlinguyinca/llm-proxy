@@ -1,0 +1,116 @@
+# LLM Proxy - Opencode Agent Configuration Template
+# ==============================================
+# Copy this file to .opencode/models.yaml and edit as needed.
+# This configuration enables Opencode agents to discover and connect to the LLM Proxy.
+#
+# Instructions:
+# 1. Copy this file: cp models.yaml.example .opencode/models.yaml
+# 2. Edit proxy_url to point to your LLM Proxy instance
+# 3. Update api_key with a secure key (use opencode init command)
+# 4. Add models you want available for agent use
+#
+
+---
+proxy_url: http://localhost:9999
+proxy_path: /
+authentication:
+  type: api_key
+  api_key: sk-opencode-dev-PLACEHOLDER-WITH-REAL-KEY
+models: []
+rate_limit:
+  enabled: false
+  tokens: 100
+  refill_rate: 10
+logging:
+  level: info
+discovery:
+  enabled: true
+  endpoint: /models/discover
+
+# Model Discovery
+# -------------
+# When discovery.enabled is true, the agent can call /{proxy_url}/models/discover
+# to get a list of available models and their metadata.
+# This eliminates the need for manual model configuration.
+
+# Authentication Options
+# ----------------------
+# Currently supports API key authentication via proxy path:
+#   type: api_key
+#   api_key: sk-opencode-dev-xxx
+#
+# To generate a new API key, run:
+#   llm-proxy-manager opencode init --proxy-url http://localhost:9999
+
+# Rate Limiting (Optional)
+# ------------------------
+# Protect your proxy from excessive requests by enabling rate limiting:
+#   rate_limit:
+#     enabled: true
+#     tokens: 50              # Max tokens per request window
+#     refill_rate: 5          # Tokens added per second to the bucket
+
+# Logging Configuration
+# --------------------
+# Adjust log level for debugging or production:
+#   logging:
+#     level: info             # Options: debug, info, warn, error
+#     format: json            # Optional: "json" or "text"
+
+# Examples of Model Entries (uncomment and edit as needed)
+# -------------------------------------------------------
+# Uncomment these sections to auto-discover specific models:
+
+models:
+  # Example 1: Small model for quick responses (~2GB RAM, ~1GB VRAM if GPU available)
+  # - name: llama3.2-1b-instruct      # Model identifier (used in API requests)
+  #   path: ./models/llama3.2-1b-instruct-Q4_K_M.gguf  # Path on disk
+  #   min_memory_mb: 2000            # Minimum RAM requirement when loaded
+  #   vram_mb_hint: 1024             # Suggested VRAM hint for GPU placement (optional)
+  #   eviction_priority: 5           # Priority for eviction (higher = evicted first during memory pressure, scale 1-10)
+  #   discovery_enabled: true        # Enable auto-discovery of this model
+  
+  # Example 2: Medium-sized model (~6GB RAM, ~4GB VRAM if GPU available)
+  # - name: qwen2.5-7b-instruct
+  #   path: ./models/qwen2.5-7b-instruct-Q4_K_M.gguf
+  #   min_memory_mb: 6000
+  #   vram_mb_hint: 4096
+  #   eviction_priority: 2
+  #   discovery_enabled: true
+  
+  # Example 3: Large model for complex tasks (~15GB RAM, ~8GB VRAM if GPU available)
+  # - name: llama3.1-8b-instruct
+  #   path: ./models/llama3.1-8b-instruct-Q4_K_M.gguf
+  #   min_memory_mb: 15000
+  #   vram_mb_hint: 8192
+  #   eviction_priority: 1           # High priority (evicted last)
+  #   discovery_enabled: true
+
+# Manual Model Configuration (when not using auto-discovery)
+# ---------------------------------------------------------
+# If you want to manually configure models without relying on discovery,
+# add entries directly here with full metadata. This is useful for
+# internal deployments where you control all model sources.
+
+models:
+  - name: my-custom-model
+    path: /mnt/models/custom-model-Q4_K_M.gguf
+    min_memory_mb: 4000
+    vram_mb_hint: 2048
+    eviction_priority: 3
+    discovery_enabled: false  # Disable if using custom endpoint
+
+# Auto-Discovery Best Practices
+# ----------------------------
+# 1. Use consistent naming for models (snake_case recommended)
+# 2. Set realistic min_memory_mb based on actual model requirements
+# 3. Higher eviction_priority values mean "keep this model loaded longer"
+# 4. vram_mb_hint is optional - the system will use CPU if no GPU available
+
+# Production Tips
+# ---------------
+# For production deployments:
+# - Enable rate_limiting to prevent abuse
+# - Set appropriate logging level (info for production, debug for troubleshooting)
+# - Use a secure API key with sufficient entropy
+# - Consider adding TLS configuration for HTTPS support

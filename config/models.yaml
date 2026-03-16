@@ -1,0 +1,44 @@
+models:
+  - id: qwen-7b-chat-q4_k_m
+    name: Qwen 7B Chat (Q4_K_M)
+    url: http://localhost:1234/v1/chat/completions
+    size_gb: 5.2
+    device: cpu
+    qualified_name: Qwen/Qwen-7B-Chat-GGUF/qwen-7b-chat-q4_k_m.gguf
+    # Resource hints for model management (optional)
+    min_memory_mb: 5400     # Minimum memory required in MB
+    eviction_priority: 1    # Eviction priority when pool is full (1 = low, 9 = high)
+  
+  - id: mistral-7b-v01-q4_k_m
+    name: Mistral 7B v0.1 (Q4_K_M)
+    url: http://localhost:1234/v1/chat/completions
+    size_gb: 5.1
+    device: cpu
+    qualified_name: TheBloke/Mistral-7B-v0.1-GGUF/mistral-7b-v0.1.Q4_K_M.gguf
+    min_memory_mb: 5300
+    eviction_priority: 2
+  
+  - id: llama3-8b-q5_k_m
+    name: LLaMA 3 (8B) (Q5_K_M)
+    url: http://localhost:1234/v1/chat/completions
+    size_gb: 6.7
+    device: cpu
+    qualified_name: TheBloke/LLaMA-3-8B-GGUF/llama-3-8b.Q5_K_M.gguf
+    min_memory_mb: 7900
+    eviction_priority: 3
+  
+  - id: phi-3-mini-q4_k_m
+    name: Phi-3 Mini (Q4_K_M)
+    url: http://localhost:1234/v1/chat/completions
+    size_gb: 3.9
+    device: cpu
+    qualified_name: TheBloke/microsoft-phi-3-mini-GGUF/phi-3-mini-q4_k_m.gguf
+    min_memory_mb: 4600
+    eviction_priority: 4
+
+# Resource Hints Field Description:
+# - min_memory_mb: Optional hint for minimum memory required when model is loaded
+#   Useful for proactive eviction before threshold is hit. Calculated as: size_gb * 1024 (roughly)
+# - eviction_priority: When memory pool is near capacity, models with higher priority 
+#   are evicted first. Scale 1-9 where 9 = evict first, 1 = keep longest. Default: auto-calc from size.
+

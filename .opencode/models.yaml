@@ -1,0 +1,56 @@
+# LLM Proxy - Opencode Agent Configuration
+# 
+# This configuration enables Opencode agents to discover, authenticate with, and
+# interact with models loaded in the LLM Proxy server.
+#
+# To set up your local agent configuration:
+#   1. Run: llm-proxy-manager models opencode init
+#   2. Edit .opencode/models.yaml with your settings
+#   3. Share this file with Opencode agents for integration
+
+---
+# LLM Proxy connection settings
+proxy_url: http://localhost:9999    # LLM Proxy server URL (required)
+proxy_path: /                       # Root path for all model endpoints (required)
+
+# Authentication method - choose one of the following sections
+# See https://github.com/opencode-ai/agents for authentication options
+
+## API Key Authentication (recommended for most use cases)
+authentication:
+  type: api_key                      # Must be "api_key" or "bearer_token"
+  api_key: sk-local-dev-key          # Replace with your actual proxy API key
+                                      # Generate keys via /api/auth/generate endpoint
+
+## Bearer Token Authentication (alternative)
+# authentication:
+#   type: bearer_token
+#   bearer_token: "your-token-here"
+
+# Models to register in Opencode agent metadata
+# These models will be exposed for discovery by agents
+models: []                           # List of model names available through proxy
+                                      # Empty list means all loaded models are available
+
+# Rate limiting configuration (optional)
+rate_limit:
+  enabled: false                      # Enable rate limiting per request
+  tokens: 100                        # Tokens available per window (if enabled)
+  refill_rate: 10                     # Tokens per second refill rate
+
+# Logging configuration
+logging:
+  level: info                         # debug, info, warning, error
+  include_requests: false             # Log full request bodies (disable for production)
+  include_responses: false            # Log full response bodies (disable for production)
+
+# Discovery settings
+discovery:
+  enabled: true                       # Allow agents to discover available models
+  endpoint: /models/discover          # URL path for discovery endpoint
+  interval: 30                        # Polling interval in seconds (if using agent)
+
+# Security settings
+security:
+  ssl_verify: true                    # Verify SSL certificates for proxy connections
+  allow_insecure: false               # Allow insecure connections (only for local dev)

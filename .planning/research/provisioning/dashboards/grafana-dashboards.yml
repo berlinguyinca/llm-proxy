@@ -1,0 +1,41 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+dashboards:
+  - name: LLM Proxy Overview
+    file: dashboards/llm-proxy-overview.json
+    datasourceUid: prometheus
+    folder: ""
+
+  - name: Performance & Latency
+    file: dashboards/llm-proxy-performance.json
+    datasourceUid: prometheus
+    folder: ""
+
+  - name: Rate Limiting
+    file: dashboards/llm-proxy-rate-limit.json
+    datasourceUid: prometheus
+    folder: ""
+
+  - name: Resource Utilization
+    file: dashboards/llm-proxy-resources.json
+    datasourceUid: prometheus
+    folder: ""
+
+  - name: Model Stats & Routing
+    file: dashboards/llm-proxy-model-stats.json
+    datasourceUid: prometheus
+    folder: ""
+
+# To use with your local dashboard files, set the path like this:
+# provisioning_path: /var/lib/grafana/dashboards
+
+# Or to import JSON files at startup (alternative approach):
+# You can manually import them via Grafana UI or use grafana-cli import

@@ -1,0 +1,147 @@
+# LLM Proxy Production Deployment with GPU Support and Monitoring Stack
+# Usage: docker-compose up -d to start all services
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # LLM Proxy Service (Main API Gateway)
+  # ==========================================
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: llm-proxy:${PROXY_TAG:-latest}
+    
+    # Expose proxy API port to host
+    ports:
+      - "9999:9999"
+    
+    # Environment variables from .env file (loaded automatically)
+    env_file:
+      - .env
+    
+    # Mount config files for hot-reload capability
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs:rw
+    
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Restart policy for production resilience
+    restart: unless-stopped
+    
+    # Resource limits (adjust based on hardware)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Network configuration
+    networks:
+      - llm-proxy-network
+
+  # ==========================================
+  # LM Studio Service (Optional - Local LLM Inference)
+  # ==========================================
+  # Uncomment below and set DISCOVERY_ENABLED=true in .env to enable auto-discovery
+  lm-studio:
+    image: lmstudio/lmstudio:latest
+    # or use specific version for stability: lmstudio/lmstudio:0.2.64
+    
+    # GPU Support - requires NVIDIA runtime on Docker host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    ports:
+      - "1234:1234"
+    
+    # Volume for model downloads and persistence
+    volumes:
+      - ./lmstudio-data:/data
+    
+    # Environment (optional LM Studio settings)
+    environment:
+      LM_STUDIO_MODEL: ""  # Set default model to load automatically (optional)
+    
+    restart: unless-stopped
+    networks:
+      - llm-proxy-network
+
+  # ==========================================
+  # Prometheus for Metrics Collection
+  # ==========================================
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: llm-proxy-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"  # Prometheus UI
+    depends_on:
+      - proxy
+    networks:
+      - llm-proxy-network
+    restart: unless-stopped
+
+  # ==========================================
+  # Grafana for Visualization & Dashboards
+  # ==========================================
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: llm-proxy-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SECURITY_ADMIN_EMAIL=admin@llmproxy.local
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"  # Grafana UI (note: if LM Studio is enabled, use 127.0.0.1:3000)
+    depends_on:
+      - prometheus
+    networks:
+      - llm-proxy-network
+    restart: unless-stopped
+
+# Named volumes for persistent data
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# Network configuration for service discovery
+networks:
+  llm-proxy-network:
+    driver: bridge
